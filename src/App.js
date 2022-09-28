@@ -10,6 +10,7 @@ import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
+import EditSongModal from './components/EditSongModal.js';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
@@ -18,6 +19,9 @@ import PlaylistCards from './components/PlaylistCards.js';
 import SidebarHeading from './components/SidebarHeading.js';
 import SidebarList from './components/SidebarList.js';
 import Statusbar from './components/Statusbar.js';
+import { toHaveDisplayValue } from '@testing-library/jest-dom/dist/matchers';
+import EditSong_Transaction from './transactions/EditSong_Transaction';
+import RemoveSongModal from './components/RemoveSongModal';
 
 class App extends React.Component {
     constructor(props) {
@@ -235,6 +239,23 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.addTransaction(transaction);
     }
+
+    //THIS FUNCTION ADDS A EditSong_Transction TO THE TRANSACTION STACK
+    editSongTransaction = (songIndex, oldSong) => {
+        console.log(songIndex);
+        console.log(oldSong);
+        let newTitle = document.getElementById("edit-song-title").value;
+        let newArtist = document.getElementById("edit-song-artist").value;
+        let newYouTubeId = document.getElementById("edit-song-id").value;
+        let transaction = new EditSong_Transaction(this, songIndex, oldSong, newTitle, newArtist, newYouTubeId, this.state.prevSongTitle, this.state.prevSongArtist, this.state.prevSongYouTubeId);
+        this.tps.addTransaction(transaction);
+        this.hideEditSongModal();
+    }
+
+    //THIS FUNCTION ADDS A RemoveSong_Transaction TO THE TRANSACTION STACK
+    removeSongTransaction = () => {
+        
+    }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -263,6 +284,29 @@ class App extends React.Component {
             this.showDeleteListModal();
         });
     }
+    markSongForEdit = (songId) => {
+        let oldSong = this.state.currentList.songs[songId];
+        let editTitle = document.getElementById("edit-song-title");
+        let editArtist = document.getElementById("edit-song-artist");
+        let editYouTubeId = document.getElementById("edit-song-id");
+
+        editTitle.value = oldSong.title;
+        editArtist.value = oldSong.artist;
+        editYouTubeId.value = oldSong.youTubeId;
+
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            prevSongId: songId,
+            prevSong: oldSong,
+            prevSongTitle: oldSong.title,
+            prevSongArtist: oldSong.artist,
+            prevSongYouTubeId: oldSong.youTubeId,
+            sessionData: prevState.sessionData
+        }), () => {
+            //PROMPT USER
+            this.showEditSongModal();
+        });
+    }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     showDeleteListModal() {
@@ -274,6 +318,40 @@ class App extends React.Component {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
     }
+
+    //THIS FUNCTION SHOWS EDIT SONG MODAL
+    showEditSongModal(){
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.add("is-visible");
+    }
+    // THIS FUNCTION IS FOR HIDING EDIT SONG MODAL
+    hideEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.remove("is-visible");
+    }
+    // THIS FUNCTION EDITS THE SONG
+    editSong = (songIndex,title,artist,youTubeId) =>{
+        let aList = this.state.currentList;
+        aList.songs[songIndex].title = title;
+        aList.songs[songIndex].artist = artist;
+        aList.songs[songIndex].youTubeId = youTubeId;
+        this.setStateWithUpdatedList(aList);
+    }
+    // THIS FUNCTION SHOWS THE REMOVE SONG MODAL
+    showRemoveSongModal(){
+        let modal = document.getElementById("remove-song-modal");
+        modal.classList.add("is-visible");
+    }
+    // THIS FUNCTION HIDES THE REMOVE SONG MODAL
+    hideRemoveSongModal(){
+        let modal = document.getElementById("remove-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+    removeSong(songIndex){
+        this.state.currentList.songs.splice(songIndex,1);
+    }
+
     render() {
         let canAddSong = this.state.currentList !== null;
         let canUndo = this.tps.hasTransactionToUndo();
@@ -303,13 +381,29 @@ class App extends React.Component {
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction} />
+                    moveSongCallback={this.addMoveSongTransaction}
+                    editSongCallback={this.markSongForEdit}
+                     />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListCallback={this.deleteMarkedList}
+                />
+                <EditSongModal
+                    oldSong = {this.state.prevSong}
+                    hideEditSongModalCallback={this.hideEditSongModal}
+                    editSongCallback={this.editSongTransaction}
+                    editSongIndex = {this.state.prevSongId}
+                    oldSongTitle = {this.state.prevSongTitle}
+                    oldSongArtist = {this.state.prevSongArtist}
+                    oldSongYouTubeId = {this.state.prevSongYouTubeId}
+                    />
+                <RemoveSongModal
+                    //songToRemove={this.}
+                    hideRemoveSongCallback={this.hideRemoveSongModal}
+                    removeSongCallback={this.removeSongTransaction}
                 />
             </div>
         );

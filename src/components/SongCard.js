@@ -53,6 +53,11 @@ export default class SongCard extends React.Component {
         // ASK THE MODEL TO MOVE THE DATA
         this.props.moveCallback(sourceId, targetId);
     }
+    handleSongEdit = (event) => {
+        event.stopPropagation();
+        this.props.editSongCallback(this.getItemNum()-1);
+
+    }
 
     getItemNum = () => {
         return this.props.id.substring("playlist-song-".length);
@@ -75,6 +80,7 @@ export default class SongCard extends React.Component {
                     onDragOver={this.handleDragOver}
                     onDragEnter={this.handleDragEnter}
                     onDragLeave={this.handleDragLeave}
+                    onDoubleClick={this.handleSongEdit}
                     onDrop={this.handleDrop} 
                     draggable="true"
                 >
