@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 export default class RemoveSongModal extends Component {
     handleRemoveSong = (event) => {
         event.preventDefault();
-
+        this.props.removeSongCallback(this.props.removeSongIndex, this.props.currentSong);
     }
+
     render() {
         const{hideRemoveSongModalCallback} = this.props;
         return (

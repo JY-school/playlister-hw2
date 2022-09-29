@@ -163,6 +163,7 @@ body {
 
 input {
   font-size:20pt;
+  float: right;
 }
 
 
@@ -221,7 +222,11 @@ input {
   grid-template-columns: 30% 65%;
   grid-template-rows: 33% 33% 33%;
   gap: 10px 20px;
-  font-size: 32pt;
+  font-size: 30pt;
+}
+
+.edit-song-input {
+  width: 200px;
 }
 
 span {

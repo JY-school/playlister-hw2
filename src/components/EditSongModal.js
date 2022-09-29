@@ -20,11 +20,11 @@ export default class EditSongModal extends Component {
                         <div class="modal-center">
                             <div class="modal-center-content">
                                 Title:
-                                <input type="text" id="edit-song-title"></input><br></br>
+                                <input type="text" id="edit-song-title" class="edit-song-input"></input><br></br>
                                 Artist:
-                                <input type="text" id="edit-song-artist"></input><br></br>
+                                <input type="text" id="edit-song-artist" class="edit-song-input"></input><br></br>
                                 YouTube Id:
-                                <input type="text" id="edit-song-id"></input><br></br>
+                                <input type="text" id="edit-song-id" class="edit-song-input"></input><br></br>
                             </div>
                         </div>
                         <div class="modal-south">

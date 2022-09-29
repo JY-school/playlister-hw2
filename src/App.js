@@ -7,10 +7,14 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import EditSong_Transaction from './transactions/EditSong_Transaction';
+import RemoveSong_Transaction from './transactions/RemoveSong_Transaction';
+import AddSong_Transaction from './transactions/AddSong_Transaction';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
 import EditSongModal from './components/EditSongModal.js';
+import RemoveSongModal from './components/RemoveSongModal.js';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
@@ -20,8 +24,6 @@ import SidebarHeading from './components/SidebarHeading.js';
 import SidebarList from './components/SidebarList.js';
 import Statusbar from './components/Statusbar.js';
 import { toHaveDisplayValue } from '@testing-library/jest-dom/dist/matchers';
-import EditSong_Transaction from './transactions/EditSong_Transaction';
-import RemoveSongModal from './components/RemoveSongModal';
 
 class App extends React.Component {
     constructor(props) {
@@ -252,10 +254,30 @@ class App extends React.Component {
         this.hideEditSongModal();
     }
 
+    addSongTransaction = () => {
+        let transaction = new AddSong_Transaction(this)
+        this.tps.addTransaction(transaction);
+    }
+
     //THIS FUNCTION ADDS A RemoveSong_Transaction TO THE TRANSACTION STACK
-    removeSongTransaction = () => {
+    removeSongTransaction = (songIndex, song) => {
+        let transaction = new RemoveSong_Transaction(this, this.state.currentSongId, this.state.currentSong);
+        this.tps.addTransaction(transaction);
+        this.hideRemoveSongModal();
         
     }
+
+    // ADDS SONG TO PLAYLIST
+    addSong(){
+        let list = this.state.currentList;
+        let newSong = {};
+        newSong["title"] = "Untitled";
+        newSong["artist"] = "Unknown";
+        newSong["youTubeId"] = "dQw4w9WgXcQ";
+        list.songs.push(newSong);
+        this.setStateWithUpdatedList(list);
+    }
+    
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -296,7 +318,7 @@ class App extends React.Component {
 
         this.setState(prevState => ({
             currentList: prevState.currentList,
-            prevSongId: songId,
+            prevSongId: songId, 
             prevSong: oldSong,
             prevSongTitle: oldSong.title,
             prevSongArtist: oldSong.artist,
@@ -305,6 +327,17 @@ class App extends React.Component {
         }), () => {
             //PROMPT USER
             this.showEditSongModal();
+        });
+    }
+    markSongForRemove = (songId) => {
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            currentSongId: songId,
+            currentSong: this.state.currentList.songs[songId],
+            sessionData: prevState.sessionData
+
+        }), () => {
+            this.showRemoveSongModal();
         });
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
@@ -348,8 +381,10 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
 
+    // THIS FUNCTION REMOVES THE SONG CARD
     removeSong(songIndex){
-        this.state.currentList.songs.splice(songIndex,1);
+        let aList = this.state.currentList.songs.splice(songIndex,1);
+        this.setStateWithUpdatedList(aList);
     }
 
     render() {
@@ -357,6 +392,7 @@ class App extends React.Component {
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
+        // PROPS LISTED BELOW
         return (
             <div id="root">
                 <Banner />
@@ -377,12 +413,14 @@ class App extends React.Component {
                     canClose={canClose} 
                     undoCallback={this.undo}
                     redoCallback={this.redo}
+                    addSongCallback={this.addSongTransaction}
                     closeCallback={this.closeCurrentList}
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
                     moveSongCallback={this.addMoveSongTransaction}
                     editSongCallback={this.markSongForEdit}
+                    removeSongCallback={this.markSongForRemove}
                      />
                 <Statusbar 
                     currentList={this.state.currentList} />
@@ -396,14 +434,15 @@ class App extends React.Component {
                     hideEditSongModalCallback={this.hideEditSongModal}
                     editSongCallback={this.editSongTransaction}
                     editSongIndex = {this.state.prevSongId}
-                    oldSongTitle = {this.state.prevSongTitle}
-                    oldSongArtist = {this.state.prevSongArtist}
-                    oldSongYouTubeId = {this.state.prevSongYouTubeId}
+                    //oldSongTitle = {this.state.prevSongTitle}
+                    //oldSongArtist = {this.state.prevSongArtist}
+                    //oldSongYouTubeId = {this.state.prevSongYouTubeId}
                     />
                 <RemoveSongModal
-                    //songToRemove={this.}
-                    hideRemoveSongCallback={this.hideRemoveSongModal}
+                    hideRemoveSongModalCallback={this.hideRemoveSongModal}
                     removeSongCallback={this.removeSongTransaction}
+                    removeSongIndex={this.state.removeSongIndex}
+                    currentSong ={this.state.currentSong}
                 />
             </div>
         );
