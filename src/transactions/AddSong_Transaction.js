@@ -19,6 +19,7 @@ export default class AddSong_Transaction extends jsTPS_Transaction {
     }
     
     undoTransaction() {
-        //this.app.moveSong(this.newSongIndex, this.oldSongIndex);
+        this.app.state.currentList.songs.pop();
+        this.app.setStateWithUpdatedList(this.app.state.currentList);
     }
 }
