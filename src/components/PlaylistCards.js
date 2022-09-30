@@ -11,6 +11,7 @@ export default class PlaylistCards extends React.Component {
             )
         }
         else {
+            console.log(currentList)
             return (
                 <div id="playlist-cards">
                     {

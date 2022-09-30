@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 
 export default class RemoveSongModal extends Component {
-    handleRemoveSong = (event) => {
-        event.preventDefault();
-        this.props.removeSongCallback(this.props.removeSongIndex, this.props.currentSong);
-    }
-
     render() {
-        const{hideRemoveSongModalCallback} = this.props;
+        const{currentSong,hideRemoveSongModalCallback,removeSongCallback} = this.props;
+        let deleteSongTitle = "";
+        if (currentSong){
+            deleteSongTitle = currentSong.title;
+        }
         return (
             <div 
                 class="modal" 
@@ -19,14 +18,14 @@ export default class RemoveSongModal extends Component {
                         </div>
                         <div class="modal-center">
                             <div class="modal-center-content">
-                                Are you sure you wish to permanently remove {} from the playlist?
+                                Are you sure you wish to permanently remove {deleteSongTitle} from the playlist?
                             </div>
                         </div>
                         <div class="modal-south">
                             <input type="button" 
                                 id="remove-song-confirm-button" 
                                 class="modal-button" 
-                                onClick={this.handleRemoveSong}
+                                onClick={removeSongCallback}
                                 value='Confirm' />
                             <input type="button" 
                                 id="remove-song-cancel-button" 

@@ -260,11 +260,11 @@ class App extends React.Component {
     }
 
     //THIS FUNCTION ADDS A RemoveSong_Transaction TO THE TRANSACTION STACK
-    removeSongTransaction = (songIndex, song) => {
-        let transaction = new RemoveSong_Transaction(this, this.state.currentSongId, this.state.currentSong);
+    removeSongTransaction = () => {
+        console.log("removeSongTransaction");
+        let transaction = new RemoveSong_Transaction(this,this.state.currentSongId,this.state.currentSong);
         this.tps.addTransaction(transaction);
         this.hideRemoveSongModal();
-        
     }
 
     // ADDS SONG TO PLAYLIST
@@ -277,7 +277,7 @@ class App extends React.Component {
         list.songs.push(newSong);
         this.setStateWithUpdatedList(list);
     }
-    
+
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -335,7 +335,6 @@ class App extends React.Component {
             currentSongId: songId,
             currentSong: this.state.currentList.songs[songId],
             sessionData: prevState.sessionData
-
         }), () => {
             this.showRemoveSongModal();
         });
@@ -382,9 +381,12 @@ class App extends React.Component {
     }
 
     // THIS FUNCTION REMOVES THE SONG CARD
-    removeSong(songIndex){
-        let aList = this.state.currentList.songs.splice(songIndex,1);
-        this.setStateWithUpdatedList(aList);
+    removeSong = (songIndex) => {
+        //console.log("at removeSong");
+        //console.log(this.state.currentList.songs)
+        //console.log(songIndex)
+        this.state.currentList.songs.splice(songIndex,1);
+        this.setStateWithUpdatedList(this.state.currentList);
     }
 
     render() {
@@ -441,7 +443,7 @@ class App extends React.Component {
                 <RemoveSongModal
                     hideRemoveSongModalCallback={this.hideRemoveSongModal}
                     removeSongCallback={this.removeSongTransaction}
-                    removeSongIndex={this.state.removeSongIndex}
+                    currentSongId={this.state.currentSongId}
                     currentSong ={this.state.currentSong}
                 />
             </div>

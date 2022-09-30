@@ -6,9 +6,10 @@ export default class SongCard extends React.Component {
 
         this.state = {
             isDragging: false,
-            draggedTo: false
+            draggedTo: false,
         }
     }
+
     handleDragStart = (event) => {
         event.dataTransfer.setData("song", event.target.id);
         this.setState(prevState => ({
@@ -79,7 +80,8 @@ export default class SongCard extends React.Component {
                 <div
                     id={'song-' + num}
                     className={"unselected-list-card"}
-                    //className={itemClass}
+                    onMouseEnter={this.handleMouseEnter}
+                    onMouseLeave={this.handleMouseLeave}
                     onDragStart={this.handleDragStart}
                     onDragOver={this.handleDragOver}
                     onDragEnter={this.handleDragEnter}
@@ -92,8 +94,7 @@ export default class SongCard extends React.Component {
                     <input //making delete button for song card
                         type="button"
                         id={"delete-song-" + num}
-                        className="list-card-button"
-                        //onClick={this.}
+                        className="playlister-button"
                         value={"\u2715"}
                         onClick={this.handleRemoveSong} />
                 </div>

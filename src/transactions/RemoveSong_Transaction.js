@@ -2,11 +2,11 @@ import jsTPS_Transaction from "../common/jsTPS.js"
 /**
  * MoveSong_Transaction
  * 
- * This class represents a transaction that works with drag
- * and drop. It will be managed by the transaction stack.
+ * This class represents a transaction that works with remove
+ * song. It will be managed by the transaction stack.
  * 
  * @author McKilla Gorilla
- * @author ?
+ * @author Jenny Yang
  */
 export default class RemoveSong_Transaction extends jsTPS_Transaction {
     constructor(initApp, songIndex, song) {
@@ -17,10 +17,11 @@ export default class RemoveSong_Transaction extends jsTPS_Transaction {
     }
 
     doTransaction() {
-        this.app.removeSong(this.oldSongIndex, this.newSongIndex);
+        this.app.removeSong(this.songIndex);
     }
     
     undoTransaction() {
-        //this.app.moveSong(this.newSongIndex, this.oldSongIndex);
+        this.app.state.currentList.songs.splice(this.songIndex, 0, this.song);
+        this.app.setStateWithUpdatedList(this.app.state.currentList);
     }
 }
