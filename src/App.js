@@ -23,7 +23,6 @@ import PlaylistCards from './components/PlaylistCards.js';
 import SidebarHeading from './components/SidebarHeading.js';
 import SidebarList from './components/SidebarList.js';
 import Statusbar from './components/Statusbar.js';
-import { toHaveDisplayValue } from '@testing-library/jest-dom/dist/matchers';
 
 class App extends React.Component {
     constructor(props) {
@@ -42,7 +41,9 @@ class App extends React.Component {
         this.state = {
             listKeyPairMarkedForDeletion : null,
             currentList : null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
+            currentSongId: null,
+            prevSongId: null,
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -184,6 +185,7 @@ class App extends React.Component {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
             this.tps.clearAllTransactions();
+            this.forceUpdate();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -196,6 +198,7 @@ class App extends React.Component {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
             this.tps.clearAllTransactions();
+            this.forceUpdate();
         });
     }
     setStateWithUpdatedList(list) {
@@ -252,6 +255,11 @@ class App extends React.Component {
         let transaction = new EditSong_Transaction(this, songIndex, oldSong, newTitle, newArtist, newYouTubeId, this.state.prevSongTitle, this.state.prevSongArtist, this.state.prevSongYouTubeId);
         this.tps.addTransaction(transaction);
         this.hideEditSongModal();
+        this.setState (prevState => ({
+            ...prevState,
+            prevSongId: null
+
+        }));
     }
 
     addSongTransaction = () => {
@@ -265,6 +273,10 @@ class App extends React.Component {
         let transaction = new RemoveSong_Transaction(this,this.state.currentSongId,this.state.currentSong);
         this.tps.addTransaction(transaction);
         this.hideRemoveSongModal();
+        this.setState (prevState => ({
+            ...prevState,
+            currentSongId: null
+        }));
     }
 
     // ADDS SONG TO PLAYLIST
@@ -389,17 +401,37 @@ class App extends React.Component {
         this.setStateWithUpdatedList(this.state.currentList);
     }
 
+    handleKeyDown = (event) => {
+        if (event.ctrlKey && event.keyCode == 90){
+            console.log("Control Z");
+            this.undo();
+        }
+        if (event.ctrlKey && event.keyCode == 89){
+            console.log("Control Y");
+            this.redo();
+        }
+    }
+
     render() {
         let canAddSong = this.state.currentList !== null;
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
+        let canAddList = this.state.currentList === null;
+        if (this.state.currentSongId !== null || this.state.prevSongId !==null){
+            canAddSong = false;
+            canUndo = false;
+            canRedo = false;
+            canClose = false;
+            canAddList = false;
+        }
         // PROPS LISTED BELOW
         return (
-            <div id="root">
+            <div id="root" onKeyDown={event => this.handleKeyDown(event)}>
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
+                    canAddList={canAddList}
                 />
                 <SidebarList
                     currentList={this.state.currentList}
@@ -436,9 +468,6 @@ class App extends React.Component {
                     hideEditSongModalCallback={this.hideEditSongModal}
                     editSongCallback={this.editSongTransaction}
                     editSongIndex = {this.state.prevSongId}
-                    //oldSongTitle = {this.state.prevSongTitle}
-                    //oldSongArtist = {this.state.prevSongArtist}
-                    //oldSongYouTubeId = {this.state.prevSongYouTubeId}
                     />
                 <RemoveSongModal
                     hideRemoveSongModalCallback={this.hideRemoveSongModal}

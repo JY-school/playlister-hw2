@@ -45,6 +45,7 @@ export default class SongCard extends React.Component {
         targetId = targetId.substring(target.id.indexOf("-") + 1);
         let sourceId = event.dataTransfer.getData("song");
         sourceId = sourceId.substring(sourceId.indexOf("-") + 1);
+    
         
         this.setState(prevState => ({
             isDragging: false,
@@ -90,7 +91,7 @@ export default class SongCard extends React.Component {
                     onDrop={this.handleDrop} 
                     draggable="true"
                 >
-                    {num}.<a href = {"https://www.youtube.com/watch?v=" + song.youTubeId}>{song.title} by {song.artist}</a>
+                    {num}.<a id={'song-'+num} href = {"https://www.youtube.com/watch?v=" + song.youTubeId}>{song.title} by {song.artist}</a>
                     <input //making delete button for song card
                         type="button"
                         id={"delete-song-" + num}
