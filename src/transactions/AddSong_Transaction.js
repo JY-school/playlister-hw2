@@ -6,7 +6,7 @@ import jsTPS_Transaction from "../common/jsTPS.js"
  * It will be managed by the transaction stack.
  * 
  * @author McKilla Gorilla
- * @author ?
+ * @author Jenny Yang
  */
 export default class AddSong_Transaction extends jsTPS_Transaction {
     constructor(initApp) {
